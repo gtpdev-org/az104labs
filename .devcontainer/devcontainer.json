@@ -1,0 +1,19 @@
+{
+  "name": "AZ-104 IaC Environment",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/rchaganti/vsc-devcontainer-features/azurebicep:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.powershell",
+        "ms-azuretools.vscode-bicep",
+        "ms-vscode.azurecli"
+      ]
+    }
+  }
+}
