@@ -8,7 +8,7 @@ set -euo pipefail
 # Adjust the grep/awk pattern if your scripts use a different format.
 
 # Manually specify the resource group names to delete
-RG_NAMES=("RG1-ARM" "RG1-AzureCLI" "RG1-AzurePowerShell" "RG1-Bicep")
+RG_NAMES=("RG1-ARM" "RG1-AzureCLI" "RG1-AzurePowerShell" "RG1-Bicep" "RG1-bicep-AVM")
 
 if [[ ${#RG_NAMES[@]} -eq 0 ]]; then
     echo "No resource groups specified."
