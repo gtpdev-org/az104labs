@@ -1,7 +1,7 @@
 #!/bin/bash
 # Deploy ARM template for networking resources
 
-RESOURCE_GROUP="RG1"
+RESOURCE_GROUP="RG1-ARM"
 LOCATION="eastus"
 TEMPLATE_FILE="$(dirname "$0")/main.json"
 

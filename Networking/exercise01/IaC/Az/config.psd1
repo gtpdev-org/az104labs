@@ -1,6 +1,6 @@
 
 @{
-    ResourceGroupName = 'RG1'
+    ResourceGroupName = 'RG1-AzurePowerShell'
     Location          = 'eastus'
     Networking        = @{
         HubVNet  = @{

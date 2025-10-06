@@ -1,7 +1,7 @@
 #!/bin/bash
 # Configuration variables for Azure CLI deployment
 
-RESOURCE_GROUP="RG1"
+RESOURCE_GROUP="RG1-AzureCLI"
 LOCATION="eastus"
 
 # Hub VNet
