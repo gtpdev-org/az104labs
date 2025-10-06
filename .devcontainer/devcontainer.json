@@ -12,7 +12,8 @@
       "extensions": [
         "ms-vscode.powershell",
         "ms-azuretools.vscode-bicep",
-        "ms-vscode.azurecli"
+        "ms-vscode.azurecli",
+        "ms-azuretools.vscode-containers"
       ]
     }
   }
