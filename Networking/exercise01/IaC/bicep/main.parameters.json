@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "hubVnetName": {
+            "value": "hub-vnet"
+        },
+        "hubVnetPrefix": {
+            "value": "10.0.0.0/16"
+        },
+        "firewallSubnetName": {
+            "value": "AzureFirewallSubnet"
+        },
+        "firewallSubnetPrefix": {
+            "value": "10.0.0.0/26"
+        },
+        "appVnetName": {
+            "value": "app-vnet"
+        },
+        "appVnetPrefix": {
+            "value": "10.1.0.0/16"
+        },
+        "frontendSubnetName": {
+            "value": "frontend"
+        },
+        "frontendSubnetPrefix": {
+            "value": "10.1.0.0/24"
+        },
+        "backendSubnetName": {
+            "value": "backend"
+        },
+        "backendSubnetPrefix": {
+            "value": "10.1.1.0/24"
+        },
+        "hubToAppVnetPeeringName": {
+            "value": "hub-to-app-vnet"
+        },
+        "appToHubVnetPeeringName": {
+            "value": "app-vnet-to-hub"
+        }
+    }
+}
