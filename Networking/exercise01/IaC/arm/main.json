@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "hubVnetName": {
+      "type": "string",
+      "defaultValue": "hub-vnet"
+    },
+    "hubVnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "firewallSubnetName": {
+      "type": "string",
+      "defaultValue": "AzureFirewallSubnet"
+    },
+    "firewallSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/26"
+    },
+    "appVnetName": {
+      "type": "string",
+      "defaultValue": "app-vnet"
+    },
+    "appVnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.1.0.0/16"
+    },
+    "frontendSubnetName": {
+      "type": "string",
+      "defaultValue": "frontend"
+    },
+    "frontendSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.1.0.0/24"
+    },
+    "backendSubnetName": {
+      "type": "string",
+      "defaultValue": "backend"
+    },
+    "backendSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.1.1.0/24"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('hubVnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('hubVnetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('firewallSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('firewallSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('appVnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('appVnetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('frontendSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('frontendSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[parameters('backendSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('backendSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2023-09-01",
+      "name": "[concat(parameters('hubVnetName'), '/hub-to-app-vnet')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+      ],
+      "properties": {
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+        },
+        "allowVirtualNetworkAccess": true
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2023-09-01",
+      "name": "[concat(parameters('appVnetName'), '/app-vnet-to-hub')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+      ],
+      "properties": {
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+        },
+        "allowVirtualNetworkAccess": true
+      }
+    }
+  ]
+}
