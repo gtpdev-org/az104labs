@@ -13,8 +13,7 @@
         "ms-vscode.powershell",
         "ms-azuretools.vscode-bicep",
         "ms-vscode.azurecli",
-        "ms-azuretools.vscode-containers",
-        "msazurermtools.azurerm-vscode-tools"
+        "ms-azuretools.vscode-containers"
       ]
     }
   }
