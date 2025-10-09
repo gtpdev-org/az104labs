@@ -9,4 +9,6 @@ RUN apt-get update \
  && apt-get install -y powershell \
  && apt-get clean && rm -rf /var/lib/apt/lists/* \
  && rm -rf packages-microsoft-prod.deb \
- && pwsh -Command 'Install-Module -Name Az -Repository PSGallery -Force -Scope AllUsers'
+ && pwsh -Command 'Install-Module -Name Az -Repository PSGallery -Force -Scope AllUsers' \
+ && pwsh -Command 'Install-Module -Name Pester -Repository PSGallery -Force -Scope AllUsers'
+ 
