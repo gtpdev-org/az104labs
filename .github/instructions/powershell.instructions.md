@@ -278,7 +278,7 @@ function Remove-UserAccount {
 
 ## Documentation and Style
 
-- **Comment-Based Help:** Include comment-based help for any public-facing function or cmdlet. Inside the function, add a `<# ... #>` help comment with at least:
+- **Comment-Based Help:** Include comment-based help for any public-facing function or cmdlet. Inside the function, add a help comment with at least:
   - `.SYNOPSIS` Brief description
   - `.DESCRIPTION` Detailed explanation
   - `.EXAMPLE` sections with practical usage
@@ -354,3 +354,49 @@ function New-Resource {
     }
 }
 ```
+
+## Parameter Passing Style: Full Splatting
+
+To ensure consistency, readability, and maintainability across all PowerShell scripts, **full splatting** must be used when passing parameters to cmdlets and functions.
+
+### Required Format
+Use a hashtable to define all parameters, and pass them using the `@` splatting operator:
+
+```
+$resourceGroupParams = @{
+    Name        = 'rg-demo'
+    Location    = 'eastus'
+    Tags        = @{ Environment = 'Dev' }
+    ErrorAction = 'Stop'
+}
+New-AzResourceGroup @resourceGroupParams
+```
+
+### Disallowed Formats
+Avoid mixing splatting with inline parameters or passing parameters directly:
+
+```
+# Mixed splatting and inline
+New-AzResourceGroup @resourceGroupParams -Name 'rg-demo'
+
+# Inline parameters only
+New-AzResourceGroup -Name 'rg-demo' -Location 'eastus'
+```
+
+### Enforcement Guidelines for GitHub Copilot
+
+- Always define a hashtable for parameters before invoking a cmdlet.
+- Never mix splatting with inline parameters.
+- Use the actual parameter name for keys in the hashtable.
+- Prefer full splatting even for simple cmdlets to maintain consistency.
+
+### Why Full Splatting?
+
+- Improves readability and clarity of intent.
+- Simplifies debugging and logging.
+- Enables dynamic parameter construction.
+- Enhances compatibility with automation tools like GitHub Actions.
+
+## Additional Resources
+- PowerShell Best Practices: https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/effective-powershell
+- PowerShell Gallery: https://www.powershellgallery.com/
