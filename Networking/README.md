@@ -9,6 +9,9 @@
 - Exercise 02 - Create and configure network security groups:
     - [Overview](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/3-exercise-security-groups)
     - [Detail](https://microsoftlearning.github.io/Configure-secure-access-to-workloads-with-Azure-virtual-networking-services/Instructions/Labs/LAB_02_security_groups.html)
+- Exercise 03 - Create and configure Azure Firewall:
+    - [Overview](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/4-exercise-firewall)
+    - [Detail](https://microsoftlearning.github.io/Configure-secure-access-to-workloads-with-Azure-virtual-networking-services/Instructions/Labs/LAB_03_firewall.html)
 
 ## Resources
 
