@@ -22,6 +22,9 @@
     - **Backend Subnet**
       - Name: <code>backend</code>
       - Address Prefix: <code>10.1.1.0/24</code>
+    - **Firewall Subnet**
+      - Name: <code>AzureFirewallSubnet</code>
+      - Address Prefix: <code>10.1.63.0/26</code>
 
 ## 3. VNet Peerings
 - **Hub-to-App Peering**

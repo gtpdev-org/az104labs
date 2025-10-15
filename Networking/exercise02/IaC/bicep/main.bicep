@@ -13,41 +13,41 @@ param appVnetName string
 @description('App VNet address prefix')
 param appVnetPrefix string
 @description('Frontend subnet name')
-param frontendSubnetName string
+param appVNetSubnetFrontendName string
 @description('Frontend subnet prefix')
-param frontendSubnetPrefix string
+param appVNetSubnetFrontendAddressPrefix string
 @description('Backend subnet name')
-param backendSubnetName string
+param appVNetSubnetBackendName string
 @description('Backend subnet prefix')
-param backendSubnetPrefix string
+param appVNetSubnetBackendAddressPrefix string
 @description('Hub to App VNet peering name')
-param hubToAppVnetPeeringName string
+param hubVNetToAppVNetPeeringName string
 @description('App to Hub VNet peering name')
-param appToHubVnetPeeringName string
+param appVNetToHubVNetPeeringName string
 @description('ASG name for frontend subnet')
-param asgName string
+param appVNetAsgName string
 @description('NSG name for backend subnet')
-param nsgName string
+param appVNetNsgName string
 @description('VM size for both VMs')
 param vmSize string
 @description('VM image publisher')
-param imagePublisher string
+param vmImagePublisher string
 @description('VM image offer')
-param imageOffer string
+param vmImageOffer string
 @description('VM image sku')
-param imageSku string
+param vmImageSku string
 @description('VM image version')
-param imageVersion string
+param vmImageVersion string
 @description('OS disk size in GB')
-param osDiskSizeGb int
+param vmOsDiskSizeGb int
 @description('OS disk type')
-param osDiskType string
+param vmOsDiskType string
 @description('OS disk caching')
-param osDiskCaching string
+param vmOsDiskCaching string
 @description('OS disk create option')
-param osDiskCreateOption string
+param vmOsDiskCreateOption string
 @description('OS disk delete option')
-param osDiskDeleteOption string
+param vmOsDiskDeleteOption string
 @description('VM admin username')
 param adminUsername string
 @description('VM admin password')
@@ -66,21 +66,21 @@ param vm1NicName string
 @description('VM2 NIC name')
 param vm2NicName string
 @description('NSG rule name')
-param nsgRuleName string
+param appVNetNsgRuleAllowSshName string
 @description('NSG rule priority')
-param nsgRulePriority int
+param appVNetNsgRuleAllowSshPriority int
 @description('NSG rule direction')
-param nsgRuleDirection string
+param appVNetNsgRuleAllowSshDirection string
 @description('NSG rule access')
-param nsgRuleAccess string
+param appVNetNsgRuleAllowSshAccess string
 @description('NSG rule protocol')
-param nsgRuleProtocol string
+param appVNetNsgRuleAllowSshProtocol string
 @description('NSG rule source address prefix')
-param nsgRuleSourceAddressPrefix string
+param appVNetNsgRuleAllowSshSourceAddressPrefix string
 @description('NSG rule source port range')
-param nsgRuleSourcePortRange string
+param appVNetNsgRuleAllowSshSourcePortRange string
 @description('NSG rule destination port range')
-param nsgRuleDestinationPortRange string
+param appVNetNsgRuleAllowSshDestinationPortRange string
 
 // Hub VNet
 module hubVNet 'br/public:avm/res/network/virtual-network:0.7.1' = {
@@ -105,19 +105,19 @@ module appVNet 'br/public:avm/res/network/virtual-network:0.7.1' = {
     addressPrefixes: [appVnetPrefix]
     subnets: [
       {
-        name: frontendSubnetName
-        addressPrefix: frontendSubnetPrefix
+        name: appVNetSubnetFrontendName
+        addressPrefix: appVNetSubnetFrontendAddressPrefix
       }
       {
-        name: backendSubnetName
-        addressPrefix: backendSubnetPrefix
+        name: appVNetSubnetBackendName
+        addressPrefix: appVNetSubnetBackendAddressPrefix
       }
     ]
     peerings: [
       {
-        name: appToHubVnetPeeringName
+        name: appVNetToHubVNetPeeringName
         remotePeeringEnabled: true
-        remotePeeringName: hubToAppVnetPeeringName
+        remotePeeringName: hubVNetToAppVNetPeeringName
         remoteVirtualNetworkResourceId: hubVNet.outputs.resourceId
       }
     ]
@@ -126,29 +126,29 @@ module appVNet 'br/public:avm/res/network/virtual-network:0.7.1' = {
 
 // Application Security Group for frontend subnet
 module appAsg 'br/public:avm/res/network/application-security-group:0.2.1' = {
-  name: asgName
+  name: appVNetAsgName
   params: {
-    name: asgName
+    name: appVNetAsgName
   }
 }
 
 // Network Security Group for backend subnet
 module backendNsg 'br/public:avm/res/network/network-security-group:0.5.1' = {
-  name: nsgName
+  name: appVNetNsgName
   params: {
-    name: nsgName
+    name: appVNetNsgName
     securityRules: [
       {
-        name: nsgRuleName
+        name: appVNetNsgRuleAllowSshName
         properties: {
-          access: nsgRuleAccess
-          direction: nsgRuleDirection
-          priority: nsgRulePriority
-          protocol: nsgRuleProtocol
+          access: appVNetNsgRuleAllowSshAccess
+          direction: appVNetNsgRuleAllowSshDirection
+          priority: appVNetNsgRuleAllowSshPriority
+          protocol: appVNetNsgRuleAllowSshProtocol
           destinationApplicationSecurityGroupResourceIds: [appAsg.outputs.resourceId]
-          destinationPortRange: nsgRuleDestinationPortRange
-          sourceAddressPrefix: nsgRuleSourceAddressPrefix
-          sourcePortRange: nsgRuleSourcePortRange
+          destinationPortRange: appVNetNsgRuleAllowSshDestinationPortRange
+          sourceAddressPrefix: appVNetNsgRuleAllowSshSourceAddressPrefix
+          sourcePortRange: appVNetNsgRuleAllowSshSourcePortRange
         }
       }
     ]
@@ -167,19 +167,19 @@ module vm1 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
     adminPassword: adminPassword
     osDisk: {
       name: '${vm1Name}-osdisk'
-      caching: osDiskCaching
-      createOption: osDiskCreateOption
-      deleteOption: osDiskDeleteOption
-      diskSizeGB: osDiskSizeGb
+      caching: vmOsDiskCaching
+      createOption: vmOsDiskCreateOption
+      deleteOption: vmOsDiskDeleteOption
+      diskSizeGB: vmOsDiskSizeGb
       managedDisk: {
-        storageAccountType: osDiskType
+        storageAccountType: vmOsDiskType
       }
     }
     imageReference: {
-      publisher: imagePublisher
-      offer: imageOffer
-      sku: imageSku
-      version: imageVersion
+      publisher: vmImagePublisher
+      offer: vmImageOffer
+      sku: vmImageSku
+      version: vmImageVersion
     }
     osType: 'Linux'
     nicConfigurations: [
@@ -217,19 +217,19 @@ module vm2 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
     adminPassword: adminPassword
     osDisk: {
       name: '${vm2Name}-osdisk'
-      caching: osDiskCaching
-      createOption: osDiskCreateOption
-      deleteOption: osDiskDeleteOption
-      diskSizeGB: osDiskSizeGb
+      caching: vmOsDiskCaching
+      createOption: vmOsDiskCreateOption
+      deleteOption: vmOsDiskDeleteOption
+      diskSizeGB: vmOsDiskSizeGb
       managedDisk: {
-        storageAccountType: osDiskType
+        storageAccountType: vmOsDiskType
       }
     }
     imageReference: {
-      publisher: imagePublisher
-      offer: imageOffer
-      sku: imageSku
-      version: imageVersion
+      publisher: vmImagePublisher
+      offer: vmImageOffer
+      sku: vmImageSku
+      version: vmImageVersion
     }
     osType: 'Linux'
     nicConfigurations: [

@@ -30,19 +30,19 @@
       "type": "string",
       "defaultValue": "10.1.0.0/16"
     },
-    "frontendSubnetName": {
+    "appVNetSubnetFrontendName": {
       "type": "string",
       "defaultValue": "frontend"
     },
-    "frontendSubnetPrefix": {
+    "appVNetSubnetFrontendAddressPrefix": {
       "type": "string",
       "defaultValue": "10.1.0.0/24"
     },
-    "backendSubnetName": {
+    "appVNetSubnetBackendName": {
       "type": "string",
       "defaultValue": "backend"
     },
-    "backendSubnetPrefix": {
+    "appVNetSubnetBackendAddressPrefix": {
       "type": "string",
       "defaultValue": "10.1.1.0/24"
     }
@@ -82,15 +82,15 @@
         },
         "subnets": [
           {
-            "name": "[parameters('frontendSubnetName')]",
+            "name": "[parameters('appVNetSubnetFrontendName')]",
             "properties": {
-              "addressPrefix": "[parameters('frontendSubnetPrefix')]"
+              "addressPrefix": "[parameters('appVNetSubnetFrontendAddressPrefix')]"
             }
           },
           {
-            "name": "[parameters('backendSubnetName')]",
+            "name": "[parameters('appVNetSubnetBackendName')]",
             "properties": {
-              "addressPrefix": "[parameters('backendSubnetPrefix')]"
+              "addressPrefix": "[parameters('appVNetSubnetBackendAddressPrefix')]"
             }
           }
         ]

@@ -13,17 +13,17 @@ param appVnetName string
 @description('App VNet address prefix')
 param appVnetPrefix string
 @description('Frontend subnet name')
-param frontendSubnetName string
+param appVNetSubnetFrontendName string
 @description('Frontend subnet prefix')
-param frontendSubnetPrefix string
+param appVNetSubnetFrontendAddressPrefix string
 @description('Backend subnet name')
-param backendSubnetName string
+param appVNetSubnetBackendName string
 @description('Backend subnet prefix')
-param backendSubnetPrefix string
+param appVNetSubnetBackendAddressPrefix string
 @description('Hub to App VNet peering name')
-param hubToAppVnetPeeringName string
+param hubVNetToAppVNetPeeringName string
 @description('App to Hub VNet peering name')
-param appToHubVnetPeeringName string
+param appVNetToHubVNetPeeringName string
 
 // Define the Hub VNet
 module hubVirtualNetwork 'br/public:avm/res/network/virtual-network:0.6.1' = {
@@ -54,19 +54,19 @@ module appVirtualNetwork 'br/public:avm/res/network/virtual-network:0.6.1' = {
     ]
     subnets: [
       {
-        name: frontendSubnetName
-        addressPrefix: frontendSubnetPrefix
+        name: appVNetSubnetFrontendName
+        addressPrefix: appVNetSubnetFrontendAddressPrefix
       }
       {
-        name: backendSubnetName
-        addressPrefix: backendSubnetPrefix
+        name: appVNetSubnetBackendName
+        addressPrefix: appVNetSubnetBackendAddressPrefix
       }
     ]
     peerings: [
       {
-        name: appToHubVnetPeeringName
+        name: appVNetToHubVNetPeeringName
         remotePeeringEnabled: true
-        remotePeeringName: hubToAppVnetPeeringName
+        remotePeeringName: hubVNetToAppVNetPeeringName
         remoteVirtualNetworkResourceId: hubVirtualNetwork.outputs.resourceId
       }
     ]

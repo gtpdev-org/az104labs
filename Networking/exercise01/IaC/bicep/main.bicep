@@ -13,17 +13,17 @@ param appVnetName string
 @description('App VNet address prefix')
 param appVnetPrefix string
 @description('Frontend subnet name')
-param frontendSubnetName string
+param appVNetSubnetFrontendName string
 @description('Frontend subnet prefix')
-param frontendSubnetPrefix string
+param appVNetSubnetFrontendAddressPrefix string
 @description('Backend subnet name')
-param backendSubnetName string
+param appVNetSubnetBackendName string
 @description('Backend subnet prefix')
-param backendSubnetPrefix string
+param appVNetSubnetBackendAddressPrefix string
 @description('Hub to App VNet peering name')
-param hubToAppVnetPeeringName string
+param hubVNetToAppVNetPeeringName string
 @description('App to Hub VNet peering name')
-param appToHubVnetPeeringName string
+param appVNetToHubVNetPeeringName string
 
 resource hubVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
   name: hubVnetName
@@ -56,15 +56,15 @@ resource appVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
     }
     subnets: [
       {
-        name: frontendSubnetName
+        name: appVNetSubnetFrontendName
         properties: {
-          addressPrefix: frontendSubnetPrefix
+          addressPrefix: appVNetSubnetFrontendAddressPrefix
         }
       }
       {
-        name: backendSubnetName
+        name: appVNetSubnetBackendName
         properties: {
-          addressPrefix: backendSubnetPrefix
+          addressPrefix: appVNetSubnetBackendAddressPrefix
         }
       }
     ]
@@ -73,7 +73,7 @@ resource appVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
 
 resource hubVnetName_hub_to_app_vnet 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-09-01' = {
   parent: hubVnet
-  name: hubToAppVnetPeeringName
+  name: hubVNetToAppVNetPeeringName
   properties: {
     remoteVirtualNetwork: {
       id: appVnet.id
@@ -84,7 +84,7 @@ resource hubVnetName_hub_to_app_vnet 'Microsoft.Network/virtualNetworks/virtualN
 
 resource appVnetName_app_vnet_to_hub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-09-01' = {
   parent: appVnet
-  name: appToHubVnetPeeringName
+  name: appVNetToHubVNetPeeringName
   properties: {
     remoteVirtualNetwork: {
       id: hubVnet.id

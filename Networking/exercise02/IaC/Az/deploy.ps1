@@ -398,7 +398,7 @@ else {
 }
 
 #  Create NSG Rule to allow SSH from Internet
-$nsgRuleConfig = @{
+$appVNetNsgRuleAllowSshConfig = @{
     Name                                  = 'AllowSSH'
     NetworkSecurityGroup                  = $nsg
     Priority                              = 100
@@ -410,19 +410,19 @@ $nsgRuleConfig = @{
     Access                                = 'Allow'
     Protocol                              = 'Tcp'
 }
-$nsg = Add-AzNetworkSecurityRuleConfig @nsgRuleConfig
+$nsg = Add-AzNetworkSecurityRuleConfig @appVNetNsgRuleAllowSshConfig
 Set-AzNetworkSecurityGroup -NetworkSecurityGroup $nsg
 
 $nsg = Get-AzNetworkSecurityGroup -Name $nsg.Name -ResourceGroupName $resourceGroup.ResourceGroupName
-$nsgRule = Get-AzNetworkSecurityRuleConfig -Name $nsgRuleConfig.Name -NetworkSecurityGroup $nsg
+$appVNetNsgRuleAllowSsh = Get-AzNetworkSecurityRuleConfig -Name $appVNetNsgRuleAllowSshConfig.Name -NetworkSecurityGroup $nsg
 
 # Validate creation
-if (-not $nsgRule) {
+if (-not $appVNetNsgRuleAllowSsh) {
     Write-Host "Failed to create NSG Rule 'AllowSSH'." -ForegroundColor Red
     exit
 }
 else {
-    Write-Host "NSG Rule '$($nsgRule.Name)' created successfully with Id '$($nsgRule.Id)'." -ForegroundColor Green
+    Write-Host "NSG Rule '$($appVNetNsgRuleAllowSsh.Name)' created successfully with Id '$($appVNetNsgRuleAllowSsh.Id)'." -ForegroundColor Green
 }
 
 # Validate NSG update
