@@ -112,7 +112,7 @@
         }
     }
     VirtualMachines   = @{
-        Size  = 'Standard_D2s_v5'
+        Size  = 'Standard_D2s_v3'
         Image = @{
             Publisher = 'canonical'
             Offer     = 'ubuntu-24_04-lts'
