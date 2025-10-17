@@ -102,7 +102,6 @@ $bicepDeploymentConfig = @{
     ResourceGroupName     = $config.ResourceGroupName
     TemplateFile          = $config.BicepFile
     TemplateParameterFile = $config.ParametersFile
-    ErrorAction           = 'SilentlyContinue'
 }
 $bicepDeployment = New-AzResourceGroupDeployment @bicepDeploymentConfig
 
