@@ -1,8 +1,44 @@
+@description('Access for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshAccess string
+@description('Destination port range for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshDestinationPortRange string
+@description('Direction for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshDirection string
+@description('Name for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshName string
+@description('Priority for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshPriority int
+@description('Protocol for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshProtocol string
+@description('Source address prefix for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshSourceAddressPrefix string
+@description('Source port range for NSG rule to allow SSH')
+param appVNetNsgRuleAllowSshSourcePortRange string
+@description('Name of backend NSG for App VNet')
+param appVNetNsgName string
 @description('Name of the Application Security Group for frontend subnet')
 param appVNetAsgName string
+@description('Name of App VNet')
+param appVnetName string
+@description('Address prefix for App VNet')
+param appVnetPrefix string
+@description('Backend subnet address prefix for App VNet')
+param appVNetSubnetBackendAddressPrefix string
+@description('Backend subnet name for App VNet')
+param appVNetSubnetBackendName string
+@description('Firewall subnet address prefix for App VNet')
+param appVNetSubnetFirewallAddressPrefix string
+@description('Firewall subnet name for App VNet')
+param appVNetSubnetFirewallName string
+@description('Frontend subnet address prefix for App VNet')
+param appVNetSubnetFrontendAddressPrefix string
+@description('Frontend subnet name for App VNet')
+param appVNetSubnetFrontendName string
 @description('Name of the App VNet firewall')
 param appVNetFirewallName string
-@description('Name of the App VNet firewall policy')
+@description('SKU tier for App VNet firewall')
+param appVNetFirewallSkuTier string
+@description('Name of App VNet firewall policy')
 param appVNetFirewallPolicyName string
 @description('Action for Application Rule Collection in firewall policy')
 param appVNetFirewallPolicyApplicationRuleCollectionAction string
@@ -56,42 +92,14 @@ param appVNetFirewallPolicyNetworkRuleCollectionType string
 param appVNetFirewallPolicySkuTier string
 @description('Name of App VNet firewall public IP')
 param appVNetFirewallPublicIpName string
-@description('SKU tier for App VNet firewall')
-param appVNetFirewallSkuTier string
-@description('Name of App VNet')
-param appVnetName string
-@description('Address prefix for App VNet')
-param appVnetPrefix string
-@description('Backend subnet address prefix for App VNet')
-param appVNetSubnetBackendAddressPrefix string
-@description('Backend subnet name for App VNet')
-param appVNetSubnetBackendName string
-@description('Firewall subnet address prefix for App VNet')
-param appVNetSubnetFirewallAddressPrefix string
-@description('Firewall subnet name for App VNet')
-param appVNetSubnetFirewallName string
-@description('Frontend subnet address prefix for App VNet')
-param appVNetSubnetFrontendAddressPrefix string
-@description('Frontend subnet name for App VNet')
-param appVNetSubnetFrontendName string
-@description('Name of backend NSG for App VNet')
-param appVNetNsgName string
-@description('Access for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshAccess string
-@description('Destination port range for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshDestinationPortRange string
-@description('Direction for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshDirection string
-@description('Name for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshName string
-@description('Priority for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshPriority int
-@description('Protocol for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshProtocol string
-@description('Source address prefix for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshSourceAddressPrefix string
-@description('Source port range for NSG rule to allow SSH')
-param appVNetNsgRuleAllowSshSourcePortRange string
+@description('Name of the route table for App VNet firewall')
+param appVNetRouteTableName string
+@description('Name of the outbound route for the App VNet firewall route table')
+param appVNetRouteTableOutboundRouteName string
+@description('Address prefix for the outbound route for the App VNet firewall route table')
+param appVNetRouteTableOutboundRouteAddressPrefix string
+@description('Next Hop Type for the outbound route for the App VNet firewall route table')
+param appVNetRouteTableOutboundRouteNextHopType string
 @description('Name of hub VNet')
 param hubVnetName string
 @description('Address prefix for hub VNet')
@@ -102,10 +110,10 @@ param hubVNetFirewallSubnetName string
 param hubVNetFirewallSubnetPrefix string
 @description('Resource group location')
 param location string
-@description('Name of App to Hub VNet peering')
-param networkingPeeringsAppToHubName string
 @description('Allow forwarded traffic in VNet peering')
 param networkingPeeringsAllowForwardedTraffic bool
+@description('Name of App to Hub VNet peering')
+param networkingPeeringsAppToHubName string
 @description('Name of Hub to App VNet peering')
 param networkingPeeringsHubToAppName string
 @description('Allocation method for public IP')
@@ -162,7 +170,7 @@ var noAvailabilityZones int = -1
 
 // Hub VNet
 module hubVNet 'br/public:avm/res/network/virtual-network:0.7.1' = {
-  name: hubVnetName
+  name: '${hubVnetName}-deployment'
   params: {
     name: hubVnetName
     addressPrefixes: [hubVnetPrefix]
@@ -177,7 +185,7 @@ module hubVNet 'br/public:avm/res/network/virtual-network:0.7.1' = {
 
 // App VNet
 module appVNet 'br/public:avm/res/network/virtual-network:0.7.1' = {
-  name: appVnetName
+  name: '${appVnetName}-deployment'
   params: {
     name: appVnetName
     addressPrefixes: [appVnetPrefix]
@@ -212,7 +220,7 @@ var appVNetBackendSubnetResourceId = appVNet.outputs.subnetResourceIds[1]
 
 // Firewall policy for App VNet
 module appVNetFirewallPolicy 'br/public:avm/res/network/firewall-policy:0.3.1' = {
-  name: appVNetFirewallPolicyName
+  name: '${appVNetFirewallPolicyName}-deployment'
   params: {
     name: appVNetFirewallPolicyName
     tier: appVNetFirewallPolicySkuTier
@@ -272,14 +280,14 @@ var appVNetFirewallPolicyResourceId = appVNetFirewallPolicy.outputs.resourceId
 
 // Firewall for App VNet
 module appVNetFirewall 'br/public:avm/res/network/azure-firewall:0.6.1' = {
-  name: appVNetFirewallName
+  name: '${appVNetFirewallName}-deployment'
   params: {
     name: appVNetFirewallName
     location: location
     azureSkuTier: appVNetFirewallSkuTier
     virtualNetworkResourceId: appVNetResourceId
     firewallPolicyId: appVNetFirewallPolicyResourceId
-    managementIPAddressObject: {
+    publicIPAddressObject: {
       name: appVNetFirewallPublicIpName
       publicIpAddressVersion: publicIpVersion
       publicIpAllocationMethod: publicIpAllocationMethod
@@ -288,10 +296,12 @@ module appVNetFirewall 'br/public:avm/res/network/azure-firewall:0.6.1' = {
     }
   }
 }
+var appVNetFirewallPrivateIpAddress = appVNetFirewall.outputs.privateIp
+
 
 // Application Security Group for frontend subnet
 module appAsg 'br/public:avm/res/network/application-security-group:0.2.1' = {
-  name: appVNetAsgName
+  name: '${appVNetAsgName}-deployment'
   params: {
     name: appVNetAsgName
   }
@@ -300,7 +310,7 @@ var frontendApplicationSecurityGroupResourceId = appAsg.outputs.resourceId
 
 // Network Security Group for backend subnet
 module backendNsg 'br/public:avm/res/network/network-security-group:0.5.1' = {
-  name: appVNetNsgName
+  name: '${appVNetNsgName}-deployment'
   params: {
     name: appVNetNsgName
     securityRules: [
@@ -322,9 +332,53 @@ module backendNsg 'br/public:avm/res/network/network-security-group:0.5.1' = {
 }
 var backendNetworkSecurityGroupResourceId = backendNsg.outputs.resourceId
 
+// Route Table for App VNet firewall
+module appVNetRouteTable 'br/public:avm/res/network/route-table:0.1.0' = {
+  name: '${appVNetRouteTableName}-deployment'
+  params: {
+    name: appVNetRouteTableName
+    routes: [
+      {
+        name: appVNetRouteTableOutboundRouteName
+        properties: {
+          addressPrefix: appVNetRouteTableOutboundRouteAddressPrefix
+          nextHopIpAddress: appVNetFirewallPrivateIpAddress
+          nextHopType: appVNetRouteTableOutboundRouteNextHopType
+        }
+      }
+    ]
+  }
+}
+var appVNetRouteTableResourceId = appVNetRouteTable.outputs.resourceId
+
+// Associate Route Table to frontend subnet
+module appVNetRouteTableAssociateFrontendSubnet 'br/public:avm/res/network/virtual-network/subnet:0.1.3' = {
+  name: '${appVNetSubnetFrontendName}-subnet-association'
+  params: {
+    name: appVNetSubnetFrontendName
+    virtualNetworkName: appVnetName
+    addressPrefix: appVNetSubnetFrontendAddressPrefix
+    routeTableResourceId: appVNetRouteTableResourceId
+  }
+}
+
+// Associate Route Table to backend subnet
+module appVNetRouteTableAssociateBackendSubnet 'br/public:avm/res/network/virtual-network/subnet:0.1.3' = {
+  name: '${appVNetSubnetBackendName}-subnet-association'
+  params: {
+    name: appVNetSubnetBackendName
+    virtualNetworkName: appVnetName
+    addressPrefix: appVNetSubnetBackendAddressPrefix
+    routeTableResourceId: appVNetRouteTableResourceId
+  }
+  dependsOn: [
+    appVNetRouteTableAssociateFrontendSubnet
+  ]
+}
+
 // VM1 (frontend)
 module vm1 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
-  name: vm1Name
+  name: '${vm1Name}-deployment'
   params: {
     name: vm1Name
     availabilityZone: noAvailabilityZones
@@ -376,7 +430,7 @@ module vm1 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
 
 // VM2 (backend)
 module vm2 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
-  name: vm2Name
+  name: '${vm2Name}-deployment'
   params: {
     name: vm2Name
     availabilityZone: noAvailabilityZones
