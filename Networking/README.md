@@ -12,6 +12,9 @@
 - Exercise 03 - Create and configure Azure Firewall:
     - [Overview](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/4-exercise-firewall)
     - [Detail](https://microsoftlearning.github.io/Configure-secure-access-to-workloads-with-Azure-virtual-networking-services/Instructions/Labs/LAB_03_firewall.html)
+- Exercise 04 - Configure network routing
+    - [Overview](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/5-exercise-policy)
+    - [Detail](https://microsoftlearning.github.io/Configure-secure-access-to-workloads-with-Azure-virtual-networking-services/Instructions/Labs/LAB_04_route.html)
 
 ## Resources
 

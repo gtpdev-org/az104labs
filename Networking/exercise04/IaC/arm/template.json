@@ -1,0 +1,664 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": { "type": "secureString", "metadata": { "description": "VM admin password" } },
+        "adminUsername": { "type": "String", "metadata": { "description": "VM admin username" } },
+        "appVNetAsgName": { "type": "String", "metadata": { "description": "ASG name for frontend subnet" } },
+        "appVNetFirewallName": { "type": "String", "metadata": { "description": "App VNet firewall name" } },
+        "appVNetFirewallPolicyAllowAzurePipelinesName": { "type": "String", "metadata": { "description": "Name for AllowAzurePipelines application rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowAzurePipelinesProtocols": { "type": "Array", "metadata": { "description": "Protocols for AllowAzurePipelines application rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowAzurePipelinesRuleType": { "type": "String", "metadata": { "description": "Rule type for AllowAzurePipelines application rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowAzurePipelinesSourceAddresses": { "type": "Array", "metadata": { "description": "Source addresses for AllowAzurePipelines application rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowAzurePipelinesTargetFqdns": { "type": "Array", "metadata": { "description": "Target FQDNs for AllowAzurePipelines application rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowAzurePipelinesTerminateTLS": { "type": "Bool", "metadata": { "description": "Terminate TLS for AllowAzurePipelines application rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowDnsDestinationAddresses": { "type": "Array", "metadata": { "description": "Destination addresses for AllowDns network rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowDnsDestinationPorts": { "type": "Array", "metadata": { "description": "Destination ports for AllowDns network rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowDnsIpProtocols": { "type": "Array", "metadata": { "description": "IP protocols for AllowDns network rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowDnsName": { "type": "String", "metadata": { "description": "Name for AllowDns network rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowDnsRuleType": { "type": "String", "metadata": { "description": "Rule type for AllowDns network rule in firewall policy" } },
+        "appVNetFirewallPolicyAllowDnsSourceAddresses": { "type": "Array", "metadata": { "description": "Source addresses for AllowDns network rule in firewall policy" } },
+        "appVNetFirewallPolicyName": { "type": "String", "metadata": { "description": "App VNet firewall policy name" } },
+        "appVNetFirewallPolicySkuTier": { "type": "String", "metadata": { "description": "App VNet firewall policy SKU tier" } },
+        "appVNetFirewallPublicIpName": { "type": "String", "metadata": { "description": "App VNet firewall public IP name" } },
+        "appVNetFirewallSkuName": { "type": "String", "metadata": { "description": "App VNet firewall SKU name" } },
+        "appVNetFirewallSkuTier": { "type": "String", "metadata": { "description": "App VNet firewall SKU tier" } },
+        "appVNetNsgName": { "type": "String", "metadata": { "description": "NSG name for backend subnet" } },
+        "appVNetNsgRuleAllowSshAccess": { "type": "String", "metadata": { "description": "NSG rule access" } },
+        "appVNetNsgRuleAllowSshDestinationPortRange": { "type": "String", "metadata": { "description": "NSG rule destination port range" } },
+        "appVNetNsgRuleAllowSshDirection": { "type": "String", "metadata": { "description": "NSG rule direction" } },
+        "appVNetNsgRuleAllowSshName": { "type": "String", "metadata": { "description": "NSG rule name" } },
+        "appVNetNsgRuleAllowSshPriority": { "type": "Int", "metadata": { "description": "NSG rule priority" } },
+        "appVNetNsgRuleAllowSshProtocol": { "type": "String", "metadata": { "description": "NSG rule protocol" } },
+        "appVNetNsgRuleAllowSshSourceAddressPrefix": { "type": "String", "metadata": { "description": "NSG rule source address prefix" } },
+        "appVNetNsgRuleAllowSshSourcePortRange": { "type": "String", "metadata": { "description": "NSG rule source port range" } },
+        "appVNetSubnetBackendAddressPrefix": { "type": "String", "metadata": { "description": "Backend subnet prefix" } },
+        "appVNetSubnetBackendName": { "type": "String", "metadata": { "description": "Backend subnet name" } },
+        "appVNetSubnetFirewallAddressPrefix": { "type": "String", "metadata": { "description": "Firewall subnet prefix for App VNet" } },
+        "appVNetSubnetFirewallName": { "type": "String", "metadata": { "description": "Firewall subnet name for App VNet" } },
+        "appVNetSubnetFrontendAddressPrefix": { "type": "String", "metadata": { "description": "Frontend subnet prefix" } },
+        "appVNetSubnetFrontendName": { "type": "String", "metadata": { "description": "Frontend subnet name" } },
+        "appVNetToHubVNetPeeringName": { "type": "String", "metadata": { "description": "App to Hub VNet peering name" } },
+        "appVnetFirewallName": { "type": "String", "metadata": { "description": "App VNet firewall name" } },
+        "appVnetName": { "type": "String", "metadata": { "description": "App VNet name" } },
+        "appVnetPrefix": { "type": "String", "metadata": { "description": "App VNet address prefix" } },
+        "hubVNetSubnetFirewallAddressPrefix": { "type": "String", "metadata": { "description": "Firewall subnet prefix" } },
+        "hubVNetSubnetFirewallName": { "type": "String", "metadata": { "description": "Firewall subnet name" } },
+        "hubVNetToAppVNetPeeringName": { "type": "String", "metadata": { "description": "Hub to App VNet peering name" } },
+        "hubVnetName": { "type": "String", "metadata": { "description": "Hub VNet name" } },
+        "hubVnetPrefix": { "type": "String", "metadata": { "description": "Hub VNet address prefix" } },
+        "location": { "type": "String", "metadata": { "description": "Resource group location" } },
+        "vm1Name": { "type": "String", "metadata": { "description": "VM1 name" } },
+        "vm1NicName": { "type": "String", "metadata": { "description": "VM1 NIC name" } },
+        "vm1PublicIpName": { "type": "String", "metadata": { "description": "VM1 public IP name" } },
+        "vm2Name": { "type": "String", "metadata": { "description": "VM2 name" } },
+        "vm2NicName": { "type": "String", "metadata": { "description": "VM2 NIC name" } },
+        "vm2PublicIpName": { "type": "String", "metadata": { "description": "VM2 public IP name" } },
+        "vmImageOffer": { "type": "String", "metadata": { "description": "VM image offer" } },
+        "vmImagePublisher": { "type": "String", "metadata": { "description": "VM image publisher" } },
+        "vmImageSku": { "type": "String", "metadata": { "description": "VM image sku" } },
+        "vmImageVersion": { "type": "String", "metadata": { "description": "VM image version" } },
+        "vmOsDiskCaching": { "type": "String", "metadata": { "description": "OS disk caching" } },
+        "vmOsDiskCreateOption": { "type": "String", "metadata": { "description": "OS disk create option" } },
+        "vmOsDiskDeleteOption": { "type": "String", "metadata": { "description": "OS disk delete option" } },
+        "vmOsDiskSizeGb": { "type": "Int", "metadata": { "description": "OS disk size in GB" } },
+        "vmOsDiskType": { "type": "String", "metadata": { "description": "OS disk type" } },
+        "vmOsType": { "type": "String", "metadata": { "description": "VM OS type" } },
+        "vmPublicIpAddressAllocationMethod": { "type": "String", "metadata": { "description": "Public IP address allocation method" } },
+        "vmPublicIpAddressSkuName": { "type": "String", "metadata": { "description": "Public IP address SKU name" } },
+        "vmPublicIpAddressSkuTier": { "type": "String", "metadata": { "description": "Public IP address SKU tier" } },
+        "vmPublicIpAddressVersion": { "type": "String", "metadata": { "description": "Public IP address version" } },
+        "vmSize": { "type": "String", "metadata": { "description": "VM size" } }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/applicationSecurityGroups",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetAsgName')]",
+            "location": "[parameters('location')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetFirewallPolicyName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "tier": "[parameters('appVNetFirewallPolicySkuTier')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetFirewallPublicIpName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('vmPublicIpAddressSkuName')]",
+                "tier": "[parameters('vmPublicIpAddressSkuTier')]"
+            },
+            "properties": {
+                "publicIPAddressVersion": "[parameters('vmPublicIpAddressVersion')]",
+                "publicIPAllocationMethod": "[parameters('vmPublicIpAddressAllocationMethod')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('vm1PublicIpName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('vmPublicIpAddressSkuName')]",
+                "tier": "[parameters('vmPublicIpAddressSkuTier')]"
+            },
+            "properties": {
+                "publicIPAddressVersion": "[parameters('vmPublicIpAddressVersion')]",
+                "publicIPAllocationMethod": "[parameters('vmPublicIpAddressAllocationMethod')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('vm2PublicIpName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('vmPublicIpAddressSkuName')]",
+                "tier": "[parameters('vmPublicIpAddressSkuTier')]"
+            },
+            "properties": {
+                "publicIPAddressVersion": "[parameters('vmPublicIpAddressVersion')]",
+                "publicIPAllocationMethod": "[parameters('vmPublicIpAddressAllocationMethod')]"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-11-01",
+            "name": "[parameters('vm1Name')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('vm1NicName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('vmImagePublisher')]",
+                        "offer": "[parameters('vmImageOffer')]",
+                        "sku": "[parameters('vmImageSku')]",
+                        "version": "[parameters('vmImageVersion')]"
+                    },
+                    "osDisk": {
+                        "osType": "[parameters('vmOsType')]",
+                        "name": "[concat(parameters('vm1Name'), '-osdisk')]",
+                        "createOption": "[parameters('vmOsDiskCreateOption')]",
+                        "caching": "[parameters('vmOsDiskCaching')]",
+                        "deleteOption": "[parameters('vmOsDiskDeleteOption')]"
+                    },
+                    "diskControllerType": "NVMe"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vm1Name')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "ssh": {
+                            "publicKeys": []
+                        },
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('vm1NicName'))]",
+                            "properties": {
+                                "primary": true,
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-11-01",
+            "name": "[parameters('vm2Name')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('vm2NicName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('vmImagePublisher')]",
+                        "offer": "[parameters('vmImageOffer')]",
+                        "sku": "[parameters('vmImageSku')]",
+                        "version": "[parameters('vmImageVersion')]"
+                    },
+                    "osDisk": {
+                        "osType": "[parameters('vmOsType')]",
+                        "name": "[concat(parameters('vm2Name'), '-osdisk')]",
+                        "createOption": "[parameters('vmOsDiskCreateOption')]",
+                        "caching": "[parameters('vmOsDiskCaching')]",
+                        "deleteOption": "[parameters('vmOsDiskDeleteOption')]"
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "NVMe"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vm2Name')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "ssh": {
+                            "publicKeys": []
+                        },
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('vm2NicName'))]",
+                            "properties": {
+                                "primary": true,
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('appVNetFirewallPolicyName'), '/DefaultApplicationRuleCollectionGroup')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('appVNetFirewallPolicyName'))]"
+            ],
+            "properties": {
+                "priority": 300,
+                "ruleCollections": [
+                    {
+                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                        "action": {
+                            "type": "Allow"
+                        },
+                        "rules": [
+                            {
+                                "ruleType": "[parameters('appVNetFirewallPolicyAllowAzurePipelinesRuleType')]",
+                                "name": "[parameters('appVNetFirewallPolicyAllowAzurePipelinesName')]",
+                                "protocols": "[parameters('appVNetFirewallPolicyAllowAzurePipelinesProtocols')]",
+                                "targetFqdns": "[parameters('appVNetFirewallPolicyAllowAzurePipelinesTargetFqdns')]",
+                                "terminateTLS": "[parameters('appVNetFirewallPolicyAllowAzurePipelinesTerminateTLS')]",
+                                "sourceAddresses": "[parameters('appVNetFirewallPolicyAllowAzurePipelinesSourceAddresses')]"
+                            }
+                        ],
+                        "name": "app-vnet-fw-rule-collection",
+                        "priority": 200
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('appVNetFirewallPolicyName'), '/DefaultNetworkRuleCollectionGroup')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('appVNetFirewallPolicyName'))]"
+            ],
+            "properties": {
+                "priority": 200,
+                "ruleCollections": [
+                    {
+                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                        "action": {
+                            "type": "Allow"
+                        },
+                        "rules": [
+                            {
+                                "ruleType": "[parameters('appVNetFirewallPolicyAllowDnsRuleType')]",
+                                "name": "[parameters('appVNetFirewallPolicyAllowDnsName')]",
+                                "ipProtocols": [ "[parameters('appVNetFirewallPolicyAllowDnsIpProtocols')]" ],
+                                "sourceAddresses": [ "[parameters('appVNetFirewallPolicyAllowDnsSourceAddresses')]" ],
+                                "destinationAddresses": [ "[parameters('appVNetFirewallPolicyAllowDnsDestinationAddresses')]" ],
+                                "destinationPorts": [ "[parameters('appVNetFirewallPolicyAllowDnsDestinationPorts')]" ] 
+                            }
+                        ],
+                        "name": "app-vnet-fw-nrc-dns",
+                        "priority": 200
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetNsgName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('appVNetAsgName'))]"
+            ],
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "[parameters('appVNetNsgRuleAllowSshName')]",
+                        "properties": {
+                            "protocol": "[parameters('appVNetNsgRuleAllowSshProtocol')]",
+                            "sourcePortRange": "[parameters('appVNetNsgRuleAllowSshSourcePortRange')]",
+                            "destinationPortRange": "[parameters('appVNetNsgRuleAllowSshDestinationPortRange')]",
+                            "sourceAddressPrefix": "[parameters('appVNetNsgRuleAllowSshSourceAddressPrefix')]",
+                            "access": "[parameters('appVNetNsgRuleAllowSshAccess')]",
+                            "priority": "[parameters('appVNetNsgRuleAllowSshPriority')]",
+                            "direction": "[parameters('appVNetNsgRuleAllowSshDirection')]",
+                            "destinationApplicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('appVNetAsgName'))]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVnetName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('appVnetPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('appVNetSubnetFirewallName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('appVNetSubnetFirewallAddressPrefix')]"
+                        }
+                    },
+                    {
+                        "name": "[parameters('appVNetSubnetBackendName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('appVNetSubnetBackendAddressPrefix')]"
+                        }
+                    },
+                    {
+                        "name": "[parameters('appVNetSubnetFrontendName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('appVNetSubnetFrontendAddressPrefix')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('hubVnetName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('hubVnetPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('hubVNetSubnetFirewallName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('hubVNetSubnetFirewallAddressPrefix')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetSubnetFirewallName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "[parameters('appVNetSubnetFirewallAddressPrefix')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('hubVNetSubnetFirewallName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "[parameters('hubVNetSubnetFirewallAddressPrefix')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetSubnetBackendName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "[parameters('appVNetSubnetBackendAddressPrefix')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetSubnetFrontendName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "[parameters('appVNetSubnetFrontendAddressPrefix')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetNsgRuleAllowSshName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appVNetNsgName'))]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('appVNetAsgName'))]"
+            ],
+            "properties": {
+                "protocol": "[parameters('appVNetNsgRuleAllowSshProtocol')]",
+                "sourcePortRange": "[parameters('appVNetNsgRuleAllowSshSourcePortRange')]",
+                "destinationPortRange": "[parameters('appVNetNsgRuleAllowSshDestinationPortRange')]",
+                "sourceAddressPrefix": "[parameters('appVNetNsgRuleAllowSshSourceAddressPrefix')]",
+                "access": "[parameters('appVNetNsgRuleAllowSshAccess')]",
+                "priority": "[parameters('appVNetNsgRuleAllowSshPriority')]",
+                "direction": "[parameters('appVNetNsgRuleAllowSshDirection')]",
+                "destinationApplicationSecurityGroups": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('appVNetAsgName'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVNetToHubVNetPeeringName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+            ],
+            "properties": {
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+                },
+                "allowForwardedTraffic": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('hubVnetPrefix')]"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('hubVnetPrefix')]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('hubVNetToAppVNetPeeringName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+            ],
+            "properties": {
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('appVnetName'))]"
+                },
+                "allowForwardedTraffic": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('appVnetPrefix')]"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('appVnetPrefix')]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/azureFirewalls",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('appVnetFirewallName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('appVNetFirewallPublicIpName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), 'AzureFirewallSubnet')]",
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('appVNetFirewallPolicyName'))]"
+            ],
+            "properties": {
+                "sku": {
+                    "name": "[parameters('appVNetFirewallSkuName')]",
+                    "tier": "[parameters('appVNetFirewallSkuTier')]"
+                },
+                "threatIntelMode": "Alert",
+                "additionalProperties": {},
+                "ipConfigurations": [
+                    {
+                        "name": "fwpip",
+                        "id": "[concat(resourceId('Microsoft.Network/azureFirewalls', parameters('appVnetFirewallName')), '/azureFirewallIpConfigurations/fwpip')]",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('appVNetFirewallPublicIpName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), 'AzureFirewallSubnet')]"
+                            }
+                        }
+                    }
+                ],
+                "firewallPolicy": {
+                    "id": "[resourceId('Microsoft.Network/firewallPolicies', parameters('appVNetFirewallPolicyName'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('vm1NicName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vm1PublicIpName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), 'frontend')]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('appVNetAsgName'))]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(parameters('vm1NicName'), '-ipconfig')]",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('vm1NicName')), concat('/ipConfigurations/', parameters('vm1NicName'), '-ipconfig'))]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vm1PublicIpName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), 'frontend')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('appVNetAsgName'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('vm2NicName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vm2PublicIpName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), 'backend')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appVNetNsgName'))]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(parameters('vm2NicName'), '-ipconfig')]",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('vm2NicName')), concat('/ipConfigurations/', parameters('vm2NicName'), '-ipconfig'))]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vm2PublicIpName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), 'backend')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appVNetNsgName'))]"
+                },
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        }
+    ]
+}
