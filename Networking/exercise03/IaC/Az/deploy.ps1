@@ -63,9 +63,7 @@ Write-ConfigValues -Config $config
 # Capture Admin Credentials for VMs
 # ---------------------------------------
 $vmCredentials = Get-Credential -Message "Enter the VM admin credentials"
-
-Write-Host "VM Admin User: $($vmCredentials.UserName)" -ForegroundColor Green
-Write-Host "VM Admin Password: $($vmCredentials.GetNetworkCredential().Password)" -ForegroundColor Green
+Write-Host "VM admin credentials captured successfully." -ForegroundColor Green
 
 
 # ---------------------------------------
@@ -677,11 +675,11 @@ $appVNetFirewallParams = @{
     Name              = $config.Networking.AppVNet.Firewall.Name
     ResourceGroupName = $resourceGroup.ResourceGroupName
     Location          = $resourceGroup.Location
+    VirtualNetwork    = $appVNet
+    PublicIpAddress   = $appVNetFirewallPublicIP
     SkuName           = $config.Networking.AppVNet.Firewall.Sku.Name
     SkuTier           = $config.Networking.AppVNet.Firewall.Sku.Tier
     FirewallPolicyId  = $appVNetFirewallPolicy.Id
-    PublicIpAddress   = $appVNetFirewallPublicIP
-    
 }
 $appVNetFirewall = New-AzFirewall @appVNetFirewallParams
 
