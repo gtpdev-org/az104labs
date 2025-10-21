@@ -63,10 +63,7 @@ Write-ConfigValues -Config $config
 # Capture Admin Credentials for VMs
 # ---------------------------------------
 $vmCredentials = Get-Credential -Message "Enter the VM admin credentials"
-
-Write-Host "VM Admin User: $($vmCredentials.UserName)" -ForegroundColor Green
-Write-Host "VM Admin Password: $($vmCredentials.GetNetworkCredential().Password)" -ForegroundColor Green
-
+Write-Host "VM admin credentials captured successfully." -ForegroundColor Green
 
 # ---------------------------------------
 # Login to Azure and select Subscription
@@ -670,18 +667,18 @@ else {
 # Create Azure Firewall in App VNet 
 # -------------------------------- 
 
-#refresh firewall policy reference
+Write-Host "Refreshing Azure Firewall Policy reference..." -ForegroundColor Yellow
 $appVNetFirewallPolicy = Get-AzFirewallPolicy -Name $appVNetFirewallPolicy.Name -ResourceGroupName $resourceGroup.ResourceGroupName
 
 $appVNetFirewallParams = @{
     Name              = $config.Networking.AppVNet.Firewall.Name
     ResourceGroupName = $resourceGroup.ResourceGroupName
     Location          = $resourceGroup.Location
+    VirtualNetwork    = $appVNet
+    PublicIpAddress   = $appVNetFirewallPublicIP
     SkuName           = $config.Networking.AppVNet.Firewall.Sku.Name
     SkuTier           = $config.Networking.AppVNet.Firewall.Sku.Tier
     FirewallPolicyId  = $appVNetFirewallPolicy.Id
-    PublicIpAddress   = $appVNetFirewallPublicIP
-    
 }
 $appVNetFirewall = New-AzFirewall @appVNetFirewallParams
 
@@ -693,6 +690,75 @@ if (-not $appVNetFirewall) {
 else {
     Write-Host "Azure Firewall '$($appVNetFirewall.Name)' created successfully with Id '$($appVNetFirewall.Id)'." -ForegroundColor Green
 }
+
+# Ensure the Private IP is allocated
+$maxAttempts = 20
+$attempt = 0
+do {
+    Write-Host "Checking for Azure Firewall private IP assignment (Attempt $($attempt + 1) of $maxAttempts)..." -ForegroundColor Yellow
+    $appVNetFirewall = Get-AzFirewall -Name $config.Networking.AppVNet.Firewall.Name -ResourceGroupName $resourceGroup.ResourceGroupName
+    $appVNetFirewallPrivateIP = $appVNetFirewall.IpConfigurations[0].PrivateIPAddress
+    if (-not $appVNetFirewallPrivateIP) {
+        Write-Host "Azure Firewall private IP not yet assigned. Retrying..." -ForegroundColor Yellow
+        $attempt++
+        Start-Sleep -Seconds 60
+    }
+} while (-not $appVNetFirewallPrivateIP -and $attempt -lt $maxAttempts)
+
+if (-not $appVNetFirewallPrivateIP) {
+    throw "Azure Firewall private IP was not assigned in time. Route Table creation cannot proceed."
+} else {
+    Write-Host "Azure Firewall private IP assigned successfully: $appVNetFirewallPrivateIP" -ForegroundColor Green
+}
+
+# --------------------------------
+# Create Route Table and Routes for App VNet
+# --------------------------------
+# Create Route Table
+$appVNetRouteTableParams = @{
+    Name              = $config.Networking.AppVNet.Firewall.RouteTable.Name
+    ResourceGroupName = $resourceGroup.ResourceGroupName
+    Location          = $resourceGroup.Location
+}
+$appVNetRouteTable = New-AzRouteTable @appVNetRouteTableParams
+
+# Validate creation
+if (-not $appVNetRouteTable) {
+    Write-Host "Failed to create Route Table '$($config.Networking.AppVNet.RouteTable.Name)'." -ForegroundColor Red
+    exit
+}
+else {
+    Write-Host "Route Table '$($appVNetRouteTable.Name)' created successfully with Id '$($appVNetRouteTable.Id)'." -ForegroundColor Green
+}
+
+# Create Route to direct traffic to Firewall
+$appVNetRouteParams = @{
+    Name             = $config.Networking.AppVNet.Firewall.RouteTable.Routes.OutboundFirewall.Name
+    AddressPrefix    = $config.Networking.AppVNet.Firewall.RouteTable.Routes.OutboundFirewall.AddressPrefix
+    NextHopType      = $config.Networking.AppVNet.Firewall.RouteTable.Routes.OutboundFirewall.NextHopType
+    NextHopIpAddress = $appVNetFirewallPrivateIP
+    RouteTable       = $appVNetRouteTable
+}
+$appVNetRoute = Add-AzRouteConfig @appVNetRouteParams
+
+# Validate creation
+if (-not $appVNetRoute) {
+    Write-Host "Failed to create Route '$($config.Networking.AppVNet.RouteTable.Route.ToFirewall.Name)'." -ForegroundColor Red
+    exit
+}
+else {
+    Write-Host "Route '$($appVNetRoute.Name)' created successfully in Route Table '$($appVNetRouteTable.Name)'." -ForegroundColor Green
+}
+
+# Commit Route Table changes
+Set-AzRouteTable -RouteTable $appVNetRouteTable
+
+# Associate Route Table with Subnets
+$appVNetSubnetFrontend.RouteTable = $appVNetRouteTable
+$appVNetSubnetBackend.RouteTable = $appVNetRouteTable
+
+#commit the changes
+Set-AzVirtualNetwork -VirtualNetwork $appVNet
 
 
 # ------------------------

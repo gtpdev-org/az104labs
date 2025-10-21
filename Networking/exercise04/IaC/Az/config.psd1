@@ -83,6 +83,16 @@
                         }
                     }
                 }
+                RouteTable  = @{
+                    Name  = 'app-vnet-fw-rt'
+                    Routes = @{
+                        OutboundFirewall = @{
+                            Name               = 'outbound-firewall'
+                            AddressPrefix      = '0.0.0.0/0'
+                            NextHopType        = 'VirtualAppliance'
+                        }
+                    }
+                }
             }
             SecurityGroups = @{
                 Application = @{
