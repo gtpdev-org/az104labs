@@ -24,3 +24,4 @@
 - [Learning Path](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/)
 - [Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/)
 - [Bicep Registry Modules](https://github.com/Azure/bicep-registry-modules/blob/main/avm/res/network/virtual-network/main.bicep)
+- [Template Definitions](https://learn.microsoft.com/en-us/azure/templates/)
