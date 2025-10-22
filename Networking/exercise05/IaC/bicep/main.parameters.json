@@ -44,6 +44,7 @@
         "appVNetNsgRuleAllowSshSourceAddressPrefix": { "value": "*" },
         "appVNetNsgRuleAllowSshSourcePortRange": { "value": "*" },
         "appVNetPrefix": { "value": "10.1.0.0/16" },
+        "appVNetPrivateDnsZoneName": { "value": "private.contoso.com" },
         "appVNetRouteTableName": { "value": "app-vnet-fw-rt" },
         "appVNetRouteTableOutboundRouteName": { "value": "outbound-firewall" },
         "appVNetRouteTableOutboundRouteAddressPrefix": { "value": "0.0.0.0/0" },

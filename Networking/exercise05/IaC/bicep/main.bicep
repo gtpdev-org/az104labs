@@ -92,6 +92,8 @@ param appVNetFirewallPolicyNetworkRuleCollectionType string
 param appVNetFirewallPolicySkuTier string
 @description('Name of App VNet firewall public IP')
 param appVNetFirewallPublicIpName string
+@description('Name of Private DNS Zone for App VNet')
+param appVNetPrivateDnsZoneName string
 @description('Name of the route table for App VNet firewall')
 param appVNetRouteTableName string
 @description('Name of the outbound route for the App VNet firewall route table')
@@ -427,6 +429,7 @@ module vm1 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
     ]
   }
 }
+var vm1PrivateIpAddress = vm1.outputs.nicConfigurations[0].?ipConfigurations[0].?privateIP
 
 // VM2 (backend)
 module vm2 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
@@ -469,6 +472,42 @@ module vm2 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
               skuName: publicIpSkuName
               publicIPAllocationMethod: publicIpAllocationMethod
             }
+          }
+        ]
+      }
+    ]
+  }
+}
+var vm2PrivateIpAddress = vm2.outputs.nicConfigurations[0].?ipConfigurations[0].?privateIP
+
+// Private DNS Zone
+module privateDnsZone 'br/public:avm/res/network/private-dns-zone:0.8.0' = {
+  name: '${appVNetPrivateDnsZoneName}-deployment'
+  params: {
+    name: appVNetPrivateDnsZoneName
+    virtualNetworkLinks: [
+      {
+        name: '${appVnetName}-link'
+        virtualNetworkResourceId: appVNetResourceId
+        registrationEnabled: true
+      }
+    ]
+    a: [
+      {
+        name: '${vm1Name}-a-record'
+        ttl: 3600
+        aRecords: [
+          {
+            ipv4Address: vm1PrivateIpAddress
+          }
+        ]
+      }
+      {
+        name: '${vm2Name}-a-record'
+        ttl: 3600
+        aRecords: [
+          {
+            ipv4Address: vm2PrivateIpAddress
           }
         ]
       }
