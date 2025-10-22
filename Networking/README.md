@@ -15,6 +15,9 @@
 - Exercise 04 - Configure network routing
     - [Overview](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/5-exercise-policy)
     - [Detail](https://microsoftlearning.github.io/Configure-secure-access-to-workloads-with-Azure-virtual-networking-services/Instructions/Labs/LAB_04_route.html)
+- Exercise 05 - DNS Zones
+    - [Overview](https://learn.microsoft.com/en-us/training/modules/guided-project-configure-secure-access-workloads/6-exercise-domain-names)
+    - [Detail](https://microsoftlearning.github.io/Configure-secure-access-to-workloads-with-Azure-virtual-networking-services/Instructions/Labs/LAB_05_domain_name.html)
 
 ## Resources
 
