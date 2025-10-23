@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appVNet": {
+            "value": {
+                "name": "app-vnet",
+                "addressPrefixes": [
+                    "10.1.0.0/16"
+                ],
+                "subnets": [
+                    {
+                        "name": "app-vnet-frontend-subnet",
+                        "addressPrefix": "10.1.0.0/24"
+                    },
+                    {
+                        "name": "app-vnet-backend-subnet",
+                        "addressPrefix": "10.1.1.0/24"
+                    },
+                    {
+                        "name": "AzureFirewallSubnet",
+                        "addressPrefix": "10.1.63.0/26"
+                    }
+                ],
+                "subnetIndexes": {
+                    "frontendSubnet": 0,
+                    "backendSubnet": 1,
+                    "firewallSubnet": 2
+                }
+            }
+        }
+    }
+}
